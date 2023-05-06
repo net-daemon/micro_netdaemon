@@ -1,6 +1,7 @@
-﻿using System.Text.Json.Nodes;
+﻿
 using MicroHomeAssistantClient;
-using MicroHomeAssistantClient.Common;
+using MicroHomeAssistantClient.Settings;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -11,17 +12,28 @@ public class DebugService : BackgroundService
     private readonly IHaClient _haClient;
     private readonly ILogger<DebugService> _logger;
     private IHaConnection? _haConnection;
-    private IObservable<JsonElement> _allEvents;
+    private IObservable<JsonElement> _allEvents = new Subject<JsonElement>();
+    private readonly string _token = "";
+    private readonly string _host;
+    private readonly int _port;
+    private readonly bool _ssl;
 
-    public DebugService(IHaClient haClient, ILogger<DebugService> logger)
+    public DebugService(IHaClient haClient, ILogger<DebugService> logger, IConfiguration configuration)
     {
         _haClient = haClient;
         _logger = logger;
+
+        var section = configuration.GetSection("HomeAssistant");
+        
+        _token = section["Token"] ?? "";
+        _host = section["Token"] ?? "";
+        _port = int.Parse(section["Token"] ?? "1");
+        _ssl = Boolean.Parse(section["Token"] ?? "false");
     }
 
     public override async Task StartAsync(CancellationToken cancellationToken)
     {
-        _haConnection = await _haClient.ConnectAsync("localhost", 8124, false, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmOWZlMDE1ZTI5OWE0NThlOTRkNjdkZTI0NDJiM2NlOSIsImlhdCI6MTY3NTUxNjIwOCwiZXhwIjoxOTkwODc2MjA4fQ.qMK43ZMjoFc12nVcumwzSFcYwKOOcweLm3a8ZznJ7L0", "api/websocket", cancellationToken);
+        _haConnection = await _haClient.ConnectAsync(_host, _port, _ssl, _token, "api/websocket", cancellationToken);
         _logger.LogInformation("Ha ({Version}) ar connected", _haConnection.HaVersion);
         var serviceData = new JsonObject(
             new[]

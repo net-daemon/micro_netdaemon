@@ -2,15 +2,25 @@
 
 using DebugApp;
 using MicroHomeAssistantClient.Extensions;
+using MicroHomeAssistantClient.Settings;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 await Host.CreateDefaultBuilder(args)
-    .ConfigureServices((_, services) =>
+    .ConfigureServices((context, services) =>
         services
             .AddMicroHomeAssistantClient()
             .AddHostedService<DebugService>()
+            
     )
+    .ConfigureAppConfiguration((ctx, config) =>
+    {
+        config.SetBasePath(Directory.GetCurrentDirectory());
+        config.AddJsonFile("appsettings.json");
+        config.AddJsonFile($"appsettings.{ctx.HostingEnvironment.EnvironmentName}.json", true);
+        config.AddEnvironmentVariables();
+    })
     .Build()
     .RunAsync()
     .ConfigureAwait(false);
