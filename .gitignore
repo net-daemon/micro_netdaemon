@@ -1,0 +1,65 @@
+### NetDaemon ###
+# Generated app files
+_EntityExtensions*
+
+# Build scripts
+packages/
+scripts/version.txt
+
+# Other
+.generated
+**.DS_Store
+
+### DotnetCore ###
+# .NET Core build folders
+[Bb]in/
+[Oo]bj/
+
+# MSTest test results
+[Tt]est[Rr]esult*/
+
+# Coverage files
+lcov.info
+codecover.json
+code_cover.json
+codecover
+codecover.info
+codecover_merged.json
+codecover_merged.info
+
+### VisualStudioCode ###
+# Setting files
+*.code-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/daemon.code-snippets
+
+# History files
+.history
+
+### VisualStudio ###
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
+### Jetbrains / Rider ###
+# User-specific files
+.idea/
+appsettings.Development.json
+
+**/core
+
+**/coverage.json
+
+# remove HA integration test files from git
+tests/Integration/HA/config/*
+!tests/Integration/HA/config/*.yaml
