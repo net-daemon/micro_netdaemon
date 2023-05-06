@@ -4,10 +4,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F480A92F-46A7-4790-BB97-590AE1C9F4DF}"
+	ProjectSection(SolutionItems) = preProject
+		src\MicroHomeAssistantClientTests\MicroHomeAssistantClientTests.csproj = src\MicroHomeAssistantClientTests\MicroHomeAssistantClientTests.csproj
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroHomeAssistantClient", "src\MicroHomeAssistantClient\MicroHomeAssistantClient.csproj", "{25C9A30F-9C30-49BC-9767-5AAE66C54C4F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DebugApp", "src\DebugApp\DebugApp.csproj", "{D2EC9944-4510-4C51-9C61-7E472F811CA7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroHomeAssistantClientTests", "src\MicroHomeAssistantClientTests\MicroHomeAssistantClientTests.csproj", "{2DF421E4-D33B-4C8A-AEBB-213D427CA694}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,9 +31,14 @@ Global
 		{D2EC9944-4510-4C51-9C61-7E472F811CA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2EC9944-4510-4C51-9C61-7E472F811CA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2EC9944-4510-4C51-9C61-7E472F811CA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DF421E4-D33B-4C8A-AEBB-213D427CA694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DF421E4-D33B-4C8A-AEBB-213D427CA694}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DF421E4-D33B-4C8A-AEBB-213D427CA694}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DF421E4-D33B-4C8A-AEBB-213D427CA694}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{25C9A30F-9C30-49BC-9767-5AAE66C54C4F} = {F480A92F-46A7-4790-BB97-590AE1C9F4DF}
 		{D2EC9944-4510-4C51-9C61-7E472F811CA7} = {F480A92F-46A7-4790-BB97-590AE1C9F4DF}
+		{2DF421E4-D33B-4C8A-AEBB-213D427CA694} = {F480A92F-46A7-4790-BB97-590AE1C9F4DF}
 	EndGlobalSection
 EndGlobal

@@ -1,6 +1,6 @@
 ﻿namespace MicroHomeAssistantClient.Internal.Net;
 
-public class ClientWebsocketFactory : IClientWebsocketFactory
+internal class ClientWebsocketFactory : IClientWebsocketFactory
 {
     
 }
