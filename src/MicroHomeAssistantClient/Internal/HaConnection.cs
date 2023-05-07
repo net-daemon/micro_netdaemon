@@ -1,6 +1,7 @@
 ﻿
 
 using MicroHomeAssistantClient.Common.Exceptions;
+using MicroHomeAssistantClient.Extensions;
 using MicroHomeAssistantClient.Internal.Helpers;
 using MicroHomeAssistantClient.Internal.Json;
 using MicroHomeAssistantClient.Internal.Net;
@@ -11,6 +12,7 @@ namespace MicroHomeAssistantClient.Internal;
 internal class HaConnection : IHaConnection
 {
     private readonly ILogger _logger;
+    private readonly NetDaemonJsonOptions _jsonOptions;
     private readonly WebSocketPipeline _wsPipeLine;
     private readonly CancellationTokenSource _internalCancelSource = new();
     private readonly SemaphoreSlim _messageIdSemaphore = new(1, 1);
@@ -21,6 +23,7 @@ internal class HaConnection : IHaConnection
     private Task _processTask = Task.CompletedTask;
 
     public IObservable<JsonElement> HaMessages => _haMessageSubject;
+    public NetDaemonJsonOptions JsonOptions => _jsonOptions;
 
     public HassCommandResultSerializationContext _hassCommandResultSerializationContext = new();
     public async Task<HassCommandResult> SendCommandAndWaitForResultAsync(JsonNode jsonCommand, CancellationToken cancelToken)
@@ -79,10 +82,14 @@ internal class HaConnection : IHaConnection
         } 
         _processTask = ProcessNewMessagesFromWebsocket(cancelToken);
     }
-    public HaConnection(ILogger logger, ClientWebSocket webSocketClient, string token)
+    public HaConnection(ILogger logger, ClientWebSocket webSocketClient, NetDaemonJsonOptions? jsonOptions)
     {
         _logger = logger;
+        _jsonOptions = jsonOptions ?? new NetDaemonJsonOptions();
         _wsPipeLine = new WebSocketPipeline(webSocketClient);
+        _jsonOptions.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+        _jsonOptions.SerializerOptions.WriteIndented = false;
+
     }
 
     private async Task HandleCoalesceSupport(CancellationToken cancelToken)

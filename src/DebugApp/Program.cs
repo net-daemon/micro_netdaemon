@@ -2,6 +2,7 @@
 
 using DebugApp;
 using MicroHomeAssistantClient.Extensions;
+using MicroHomeAssistantClient.Internal.Json;
 using MicroHomeAssistantClient.Settings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 await Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
         services
+            .ConfigureNetDaemonJsonOptions(options =>
+                {
+                    options.SerializerOptions.AddContext<TestServiceDataSerializationContext>();
+                }
+                )
             .AddMicroHomeAssistantClient()
             .AddHostedService<DebugService>()
             

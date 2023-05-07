@@ -1,4 +1,5 @@
 ﻿using MicroHomeAssistantClient;
+using MicroHomeAssistantClient.Extensions;
 using MicroHomeAssistantClient.Internal;
 using MicroHomeAssistantClient.Internal.Net;
 using MicroHomeAssistantClient.Settings;
@@ -28,7 +29,9 @@ public class IntegrationTestBase : IClassFixture<HomeAssistantServiceFixture>
     internal async Task<TestContext> GetConnectedClientContext(HomeAssistantSettings? haSettings = null)
     {
         var mock = HaFixture.HaMock ?? throw new ApplicationException("Unexpected for the mock server to be null");
-
+        var optionsMock = new Mock<IOptions<NetDaemonJsonOptions>>();
+        optionsMock.SetupGet(n => n.Value).Returns(new NetDaemonJsonOptions());
+        
         var loggerClient = new Mock<ILogger<HaClient>>();
         var loggerConnection = new Mock<ILogger<IHaConnection>>();
         var settings = haSettings ?? new HomeAssistantSettings
@@ -43,7 +46,8 @@ public class IntegrationTestBase : IClassFixture<HomeAssistantServiceFixture>
 
         var client = new HaClient(
             loggerClient.Object,
-            new ClientWebsocketFactory()
+            new ClientWebsocketFactory(),
+            optionsMock.Object
         );
         var connection = await client.ConnectAsync(
             settings.Host,

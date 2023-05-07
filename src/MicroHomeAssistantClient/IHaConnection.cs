@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Nodes;
+using MicroHomeAssistantClient.Extensions;
 using MicroHomeAssistantClient.Model;
 
 namespace MicroHomeAssistantClient;
@@ -13,4 +14,6 @@ public interface IHaConnection : IAsyncDisposable
     string HaVersion { get; }
     
     IObservable<JsonElement> HaMessages { get; }
+    
+    NetDaemonJsonOptions JsonOptions { get; }
 }
