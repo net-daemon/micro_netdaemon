@@ -1,10 +1,12 @@
 ﻿using System.Text.Json.Nodes;
+using System.Xml.XPath;
+using MicroHomeAssistantClient.Model;
 
 namespace MicroHomeAssistantClient;
 
 public static class HaConnectionExtension
 {
-    public static async Task<JsonElement> CallService(this IHaConnection haConnection, string domain, string service, JsonObject serviceDataObject, CancellationToken cancelToken)
+    public static async Task<HassCommandResult> CallService(this IHaConnection haConnection, string domain, string service, JsonObject serviceDataObject, CancellationToken cancelToken)
     {
         var x = new JsonObject(new[]
         {
@@ -14,10 +16,10 @@ public static class HaConnectionExtension
             KeyValuePair.Create<string, JsonNode?>("service_data", serviceDataObject),
         });
 
-        return await haConnection.SendCommandAsync(x, cancelToken);
+        return await haConnection.SendCommandAndWaitForResultAsync(x, cancelToken);
     }
 
-    public static async Task<IObservable<JsonElement>> SubscribeEvents(this IHaConnection haConnection, string? eventType, CancellationToken cancelToken)
+    public static async Task<IObservable<JsonElement>> SubscribeEventsAsync(this IHaConnection haConnection, string? eventType, CancellationToken cancelToken)
     {
         eventType ??= "*";
         
@@ -27,13 +29,39 @@ public static class HaConnectionExtension
             KeyValuePair.Create<string, JsonNode?>("event_type", eventType),
         });
         
-        var result = await haConnection.SendCommandAsync(x, cancelToken);
+        var result = await haConnection.SendCommandAndWaitForResultAsync(x, cancelToken);
 
-        if (!HaMessageHelper.GetResultSuccess(result))
+        if (!result.Success)
             throw new InvalidOperationException($"Subscribe to events failed, {result}");
 
-        var messageId = HaMessageHelper.GetMessageId(result);
+        return haConnection.HaMessages.Where(n => HaMessageHelper.GetMessageId(n) == result.Id);
+    }
 
-        return haConnection.HaMessages.Where(n => HaMessageHelper.GetMessageId(n) == messageId);
+    public static async Task SendSimpleCommandAsync(this IHaConnection haConnection,
+        string? commandType, CancellationToken cancelToken)
+    {
+        var x = new JsonObject(new[]
+        {
+            KeyValuePair.Create<string, JsonNode?>("type", commandType),
+        });
+        
+        await haConnection.SendCommandAsync(x, cancelToken);
+    }
+    
+    public static async Task<HassCommandResult> SendSimpleCommandAndWaitForResultAsync(this IHaConnection haConnection,
+        string? commandType, CancellationToken cancelToken)
+    {
+        var x = new JsonObject(new[]
+        {
+            KeyValuePair.Create<string, JsonNode?>("type", commandType),
+        });
+        
+        var result = await haConnection.SendCommandAndWaitForResultAsync(x, cancelToken);
+
+        if (!result.Success)
+            throw new InvalidOperationException($"Subscribe to events failed, {result}");
+
+        return result;
     }
 }
+

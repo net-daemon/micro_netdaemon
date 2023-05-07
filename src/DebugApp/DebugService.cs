@@ -17,6 +17,7 @@ public class DebugService : BackgroundService
     private readonly string _host;
     private readonly int _port;
     private readonly bool _ssl;
+    private IObservable<JsonElement> _allEvents2;
 
     public DebugService(IHaClient haClient, ILogger<DebugService> logger, IConfiguration configuration)
     {
@@ -26,9 +27,9 @@ public class DebugService : BackgroundService
         var section = configuration.GetSection("HomeAssistant");
         
         _token = section["Token"] ?? "";
-        _host = section["Token"] ?? "";
-        _port = int.Parse(section["Token"] ?? "1");
-        _ssl = Boolean.Parse(section["Token"] ?? "false");
+        _host = section["Host"] ?? "";
+        _port = int.Parse(section["Port"] ?? "1");
+        _ssl = Boolean.Parse(section["Ssl"] ?? "false");
     }
 
     public override async Task StartAsync(CancellationToken cancellationToken)
@@ -44,9 +45,18 @@ public class DebugService : BackgroundService
         var result = await _haConnection.CallService("input_boolean", "toggle", serviceData, cancellationToken);
         _logger.LogInformation("Result from CallService: {Result}", result);
 
-        _allEvents = await _haConnection.SubscribeEvents("state_changed", cancellationToken);
-
+        _allEvents = await _haConnection.SubscribeEventsAsync("*", cancellationToken);
         _allEvents.Subscribe(s => _logger.LogInformation("New event: {Event}", s));
+        _allEvents2 = await _haConnection.SubscribeEventsAsync("*", cancellationToken);
+        _allEvents2.Subscribe(s => _logger.LogInformation("New event: {Event}", s));
+
+        await _haConnection
+            .SendSimpleCommandAsync(
+                "ping",
+                cancellationToken
+            )
+            .ConfigureAwait(false);
+        
 
     }
     

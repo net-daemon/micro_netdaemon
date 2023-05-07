@@ -2,7 +2,9 @@
 
 using MicroHomeAssistantClient.Common.Exceptions;
 using MicroHomeAssistantClient.Internal.Helpers;
+using MicroHomeAssistantClient.Internal.Json;
 using MicroHomeAssistantClient.Internal.Net;
+using MicroHomeAssistantClient.Model;
 
 namespace MicroHomeAssistantClient.Internal;
 
@@ -13,14 +15,15 @@ internal class HaConnection : IHaConnection
     private readonly CancellationTokenSource _internalCancelSource = new();
     private readonly SemaphoreSlim _messageIdSemaphore = new(1, 1);
     private readonly SemaphoreSlim _sendSemaphore = new(1, 1);
-    private int _messageId = 1;
+    private int _messageId;
     
     private readonly Subject<JsonElement> _haMessageSubject = new();
     private Task _processTask = Task.CompletedTask;
 
     public IObservable<JsonElement> HaMessages => _haMessageSubject;
-    
-    public async Task<JsonElement> SendCommandAsync(JsonNode jsonCommand, CancellationToken cancelToken)
+
+    public HassCommandResultSerializationContext _hassCommandResultSerializationContext = new();
+    public async Task<HassCommandResult> SendCommandAndWaitForResultAsync(JsonNode jsonCommand, CancellationToken cancelToken)
     {
         await _sendSemaphore.WaitAsync(cancelToken).ConfigureAwait(false);
         jsonCommand["id"] = ++_messageId;
@@ -36,12 +39,33 @@ internal class HaConnection : IHaConnection
          
             await _wsPipeLine.SendJsonNodeAsync(jsonCommand, cancelToken);
 
-            return await resultEvent;
+            var jsonResult = await resultEvent;
+
+            return (HassCommandResult?) jsonResult.Deserialize(typeof(HassCommandResult), _hassCommandResultSerializationContext) ?? throw new InvalidOperationException("Failed to deserialize result message");
         }
         finally
         {
             _sendSemaphore.Release();
         }
+    }
+
+    public async Task SendCommandAsync(JsonNode jsonCommand, CancellationToken cancelToken)
+    {
+        await _sendSemaphore.WaitAsync(cancelToken).ConfigureAwait(false);
+        jsonCommand["id"] = ++_messageId;
+        try
+        {
+            await _wsPipeLine.SendJsonNodeAsync(jsonCommand, cancelToken);
+        }
+        finally
+        {
+            _sendSemaphore.Release();
+        }
+    }
+
+    public Task<HassCommandResult> SendCommandAndWaitForResultAsync(object command, CancellationToken cancelToken)
+    {
+        throw new NotImplementedException();
     }
 
     public string HaVersion { get; private set; } = string.Empty;
@@ -130,11 +154,13 @@ internal class HaConnection : IHaConnection
                     // We have coalesce messages
                     foreach (var element in msg.EnumerateArray())
                     {
+                        _logger.LogTrace("Coalesce message received: \r\n {Element}", element);
                         _haMessageSubject.OnNext(element);
                     }
                 }
                 else
                 {
+                    _logger.LogTrace("Message received: \r\n {Element}", msg);
                     _haMessageSubject.OnNext(msg);
                 }
             }

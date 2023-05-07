@@ -246,6 +246,7 @@ public class HassMockStartup : IHostedService
 
                         break;
                     case "ping":
+                        await Task.Delay(500);
                         await ReplaceIdInResponseAndSendMsg(
                             "pong.json",
                             messageId,
@@ -256,7 +257,8 @@ public class HassMockStartup : IHostedService
                             "result_msg.json",
                             messageId,
                             webSocket).ConfigureAwait(false);
-                        
+
+                        await Task.Delay(500);
                         _eventSubscriptions.Add(messageId);
 
                         await ReplaceIdInResponseAndSendMsg(
@@ -277,6 +279,12 @@ public class HassMockStartup : IHostedService
                             webSocket).ConfigureAwait(false);
                         break;
                     case "call_service":
+                        await ReplaceIdInResponseAndSendMsg(
+                            "result_msg.json",
+                            messageId,
+                            webSocket).ConfigureAwait(false);
+                        break;
+                    case "supported_features":
                         await ReplaceIdInResponseAndSendMsg(
                             "result_msg.json",
                             messageId,
