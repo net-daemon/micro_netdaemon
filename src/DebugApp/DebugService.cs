@@ -46,12 +46,12 @@ public class DebugService : BackgroundService
         );
         // var result = await _haConnection.CallService("input_boolean", "toggle", serviceData, cancellationToken);
 
-        var result = await _haConnection.CallService("input_boolean", "toggle", new TestServiceData()
+        var result = await _haConnection.CallService("tts", "google_translate_say", new TtsGoogleTranslateSayParameters()
         {
-            TestDAta = "Hello world"
+            Message = "Hello"
         }, new HassTarget()
         {
-            EntityIds = new[] { "input_boolean.baaaanan" }
+            EntityIds = new[] { "media_player.sovrum" }
         });
         
         _logger.LogInformation("Result from CallService: {Result}", result);

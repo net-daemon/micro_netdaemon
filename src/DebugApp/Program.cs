@@ -13,7 +13,7 @@ await Host.CreateDefaultBuilder(args)
         services
             .ConfigureNetDaemonJsonOptions(options =>
                 {
-                    options.SerializerOptions.AddContext<TestServiceDataSerializationContext>();
+                    options.SerializerOptions.AddContext<TtsDataSerializationContext>();
                 }
                 )
             .AddMicroHomeAssistantClient()
